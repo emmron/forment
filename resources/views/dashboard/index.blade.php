@@ -3,15 +3,68 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
             <h1 class="text-3xl font-bold text-slate-900">Dashboard</h1>
-            <p class="text-slate-500 mt-1">Welcome back, {{ auth()->user()->name }}!</p>
+            <p class="text-slate-500 mt-1">Welcome back, <span class="font-medium text-slate-700">{{ auth()->user()->name }}</span>!</p>
         </div>
-        <a href="{{ route('forms.create') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:from-brand-600 hover:to-brand-700 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-            </svg>
-            New Form
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('forms.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span>All Forms</span>
+            </a>
+            <a href="{{ route('forms.create') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:from-brand-600 hover:to-brand-700 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                </svg>
+                New Form
+            </a>
+        </div>
     </div>
+
+    <!-- Getting Started Checklist (for new users) -->
+    @if($forms->count() === 1 && $totalSubmissions < 5)
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100"
+         x-data="{ dismissed: localStorage.getItem('getting-started') === 'true' }"
+         x-show="!dismissed"
+         x-transition>
+        <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-900">Getting Started</h3>
+                </div>
+                <div class="space-y-2">
+                    <label class="flex items-center gap-3 text-sm">
+                        <input type="checkbox" checked disabled class="w-4 h-4 text-brand-600 rounded">
+                        <span class="text-slate-600 line-through">Create your first form</span>
+                    </label>
+                    <label class="flex items-center gap-3 text-sm">
+                        <input type="checkbox" {{ $totalSubmissions > 0 ? 'checked disabled' : '' }} class="w-4 h-4 text-brand-600 rounded">
+                        <span class="text-slate-600 {{ $totalSubmissions > 0 ? 'line-through' : '' }}">Send a test submission</span>
+                    </label>
+                    <label class="flex items-center gap-3 text-sm">
+                        <input type="checkbox" {{ $forms->first()?->email_notifications ? 'checked disabled' : '' }} class="w-4 h-4 text-brand-600 rounded">
+                        <span class="text-slate-600 {{ $forms->first()?->email_notifications ? 'line-through' : '' }}">Configure email notifications</span>
+                    </label>
+                    <label class="flex items-center gap-3 text-sm">
+                        <input type="checkbox" class="w-4 h-4 text-brand-600 rounded">
+                        <span class="text-slate-600">Integrate with your website</span>
+                    </label>
+                </div>
+            </div>
+            <button @click="dismissed = true; localStorage.setItem('getting-started', 'true')"
+                    class="text-slate-400 hover:text-slate-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    @endif
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
@@ -82,21 +135,75 @@
     </div>
 
     @if($forms->isEmpty())
-        <!-- Empty State -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-12 text-center">
-            <div class="w-20 h-20 bg-gradient-to-br from-brand-100 to-accent-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <svg class="w-10 h-10 text-brand-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
-                </svg>
+        <!-- Empty State with Quick Start -->
+        <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Main Empty State -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-12 text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-brand-100 to-accent-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-brand-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-3">Let's create your first form</h3>
+                    <p class="text-slate-500 mb-8 max-w-md mx-auto">Get a unique endpoint URL in seconds. No server setup, no configuration files needed.</p>
+                    <a href="{{ route('forms.create') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-brand-600 hover:to-brand-700 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Create Your First Form
+                    </a>
+                </div>
             </div>
-            <h3 class="text-xl font-semibold text-slate-900 mb-2">No forms yet</h3>
-            <p class="text-slate-500 mb-6 max-w-sm mx-auto">Create your first form endpoint and start collecting submissions in seconds.</p>
-            <a href="{{ route('forms.create') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-brand-600 hover:to-brand-700 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                </svg>
-                Create Your First Form
-            </a>
+
+            <!-- How It Works -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-6">
+                    <h3 class="font-semibold text-slate-900 mb-4">How it works</h3>
+                    <ol class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 bg-brand-500 text-white rounded-full text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">1</div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-900">Create endpoint</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Get a unique URL instantly</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 bg-brand-500 text-white rounded-full text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">2</div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-900">Add to your form</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Point your HTML form action</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 bg-brand-500 text-white rounded-full text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">3</div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-900">Collect submissions</p>
+                                <p class="text-xs text-slate-500 mt-0.5">View & manage in dashboard</p>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-5 text-white">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-sm">Free Features</h3>
+                            <ul class="text-xs text-white/80 mt-2 space-y-1">
+                                <li>• Email notifications</li>
+                                <li>• Webhooks & integrations</li>
+                                <li>• Spam protection</li>
+                                <li>• CSV/JSON export</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     @else
         <div class="grid lg:grid-cols-3 gap-6">
@@ -206,17 +313,73 @@
                     @endif
                 </div>
 
-                <!-- Quick Tips -->
-                <div class="bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl p-5 text-white">
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-200/50">
+                        <h2 class="font-semibold text-slate-900">Quick Actions</h2>
+                    </div>
+                    <div class="p-4 space-y-2">
+                        <a href="{{ route('forms.create') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors group">
+                            <div class="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-slate-900 group-hover:text-brand-600">New Form</p>
+                                <p class="text-xs text-slate-500">Create endpoint</p>
+                            </div>
+                            <svg class="w-4 h-4 text-slate-300 group-hover:text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                        <a href="{{ route('forms.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors group">
+                            <div class="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-slate-900 group-hover:text-violet-600">View All Forms</p>
+                                <p class="text-xs text-slate-500">Manage endpoints</p>
+                            </div>
+                            <svg class="w-4 h-4 text-slate-300 group-hover:text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pro Tips -->
+                <div class="bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl p-5 text-white" x-data="{
+                    tips: [
+                        'Add <code class=&quot;bg-white/20 px-1 rounded&quot;>_honeypot</code> field to catch spam bots automatically.',
+                        'Use webhooks to send form data to your own servers in real-time.',
+                        'Enable CAPTCHA in form settings to block automated submissions.',
+                        'Export submissions as CSV or JSON for easy data analysis.',
+                        'Set up autoresponders to thank users instantly after submission.'
+                    ],
+                    currentTip: 0
+                }" x-init="setInterval(() => currentTip = (currentTip + 1) % tips.length, 5000)">
                     <div class="flex items-start gap-3">
                         <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                         </div>
-                        <div>
-                            <h3 class="font-semibold text-sm">Pro tip</h3>
-                            <p class="text-xs text-white/80 mt-1">Add <code class="bg-white/20 px-1 rounded">_honeypot</code> field to catch spam bots automatically.</p>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-sm mb-2">Pro Tip</h3>
+                            <template x-for="(tip, index) in tips" :key="index">
+                                <p x-show="currentTip === index"
+                                   x-transition:enter="transition ease-out duration-300"
+                                   x-transition:enter-start="opacity-0 transform translate-y-2"
+                                   x-transition:enter-end="opacity-100 transform translate-y-0"
+                                   x-transition:leave="transition ease-in duration-300"
+                                   x-transition:leave-start="opacity-100"
+                                   x-transition:leave-end="opacity-0"
+                                   class="text-xs text-white/90"
+                                   x-html="tip"></p>
+                            </template>
                         </div>
                     </div>
                 </div>
