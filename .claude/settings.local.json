@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer create-project:*)",
+      "Bash(php:*)",
+      "Bash(tree:*)",
+      "Bash(apt-get update:*)",
+      "Bash(apt-get install:*)",
+      "Bash(curl:*)",
+      "Bash(composer install:*)",
+      "Bash(chmod:*)",
+      "Bash(composer dump-autoload:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:getform.io)",
+      "WebFetch(domain:forminit.com)",
+      "Bash(sudo apt-get update:*)",
+      "Bash(sudo apt-get install:*)",
+      "Bash(git init:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
