@@ -33,8 +33,17 @@ class SendEmailNotification implements ShouldQueue
             return;
         }
 
-        $mailer = $this->getMailer();
         $to = $this->form->getNotificationEmailAddress();
+
+        if (!$to) {
+            Log::warning('No notification email configured', [
+                'form_id' => $this->form->id,
+                'submission_id' => $this->submission->id,
+            ]);
+            return;
+        }
+
+        $mailer = $this->getMailer();
 
         try {
             $mailer->to($to)->send(new NewSubmissionNotification($this->form, $this->submission));

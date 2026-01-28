@@ -106,9 +106,13 @@ class Form extends Model
         return $this->api_key;
     }
 
-    public function getNotificationEmailAddress(): string
+    public function getNotificationEmailAddress(): ?string
     {
-        return $this->notification_email ?: $this->user->email;
+        if ($this->notification_email) {
+            return $this->notification_email;
+        }
+
+        return $this->user?->email;
     }
 
     public function getSmtpConfig(): ?array

@@ -202,4 +202,48 @@ class SubmissionTest extends TestCase
         $response->assertOk();
         $this->assertStringContainsString('application/json', $response->headers->get('Content-Type'));
     }
+
+    public function test_email_as_endpoint_auto_creates_form(): void
+    {
+        $email = 'test-auto@example.com';
+
+        // First submission should create the form
+        $this->postJson("/f/{$email}", [
+            'name' => 'John Doe',
+            'message' => 'Hello!',
+        ])->assertOk()
+          ->assertJson(['success' => true]);
+
+        // Form should be created with email as endpoint
+        $this->assertDatabaseHas('forms', [
+            'endpoint' => $email,
+            'notification_email' => $email,
+            'email_notifications' => true,
+            'user_id' => null,
+        ]);
+
+        // Submission should be stored
+        $form = Form::where('endpoint', $email)->first();
+        $this->assertDatabaseHas('submissions', [
+            'form_id' => $form->id,
+        ]);
+    }
+
+    public function test_email_endpoint_reuses_existing_form(): void
+    {
+        $email = 'reuse@example.com';
+
+        // Create first submission
+        $this->postJson("/f/{$email}", ['name' => 'First'])->assertOk();
+
+        // Create second submission
+        $this->postJson("/f/{$email}", ['name' => 'Second'])->assertOk();
+
+        // Should only have one form
+        $this->assertDatabaseCount('forms', 1);
+
+        // Should have two submissions
+        $form = Form::where('endpoint', $email)->first();
+        $this->assertEquals(2, $form->submissions()->count());
+    }
 }

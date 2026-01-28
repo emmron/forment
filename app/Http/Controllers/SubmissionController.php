@@ -26,10 +26,11 @@ class SubmissionController extends Controller
 
     /**
      * Handle incoming form submission (public endpoint).
+     * Supports both regular endpoints and email-as-endpoint (e.g., /f/you@example.com)
      */
     public function store(Request $request, string $endpoint): Response|RedirectResponse|JsonResponse
     {
-        $form = Form::where('endpoint', $endpoint)->firstOrFail();
+        $form = $this->resolveForm($endpoint);
 
         if (!$form->is_active) {
             return $this->errorResponse($request, 'This form is not accepting submissions.', 403);
@@ -370,5 +371,29 @@ class SubmissionController extends Controller
         }
 
         abort($status, $message);
+    }
+
+    /**
+     * Resolve form from endpoint - supports both regular endpoints and email addresses.
+     * Email endpoints auto-create forms: /f/you@example.com just works.
+     */
+    protected function resolveForm(string $endpoint): Form
+    {
+        // Check if endpoint is an email address
+        if (filter_var($endpoint, FILTER_VALIDATE_EMAIL)) {
+            return Form::firstOrCreate(
+                ['endpoint' => strtolower($endpoint)],
+                [
+                    'name' => 'Form for ' . $endpoint,
+                    'email_notifications' => true,
+                    'notification_email' => strtolower($endpoint),
+                    'user_id' => null,
+                    'is_active' => true,
+                    'captcha_type' => 'none',
+                ]
+            );
+        }
+
+        return Form::where('endpoint', $endpoint)->firstOrFail();
     }
 }

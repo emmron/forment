@@ -10,60 +10,27 @@ class AuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_login_page_is_accessible(): void
+    public function test_login_page_redirects_to_home(): void
     {
-        $this->get('/login')->assertOk();
+        // In demo mode, login redirects to home which auto-logs in
+        $this->get('/login')->assertRedirect('/');
     }
 
-    public function test_register_page_is_accessible(): void
+    public function test_register_page_redirects_to_home(): void
     {
-        $this->get('/register')->assertOk();
+        // In demo mode, register redirects to home which auto-logs in
+        $this->get('/register')->assertRedirect('/');
     }
 
-    public function test_user_can_register(): void
+    public function test_home_auto_logs_in_demo_user(): void
     {
-        $this->post('/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-        ])->assertRedirect('/dashboard');
+        $this->get('/')->assertRedirect('/dashboard');
 
-        $this->assertDatabaseHas('users', [
-            'email' => 'test@example.com',
-        ]);
-
+        // Demo user should be created and logged in
         $this->assertAuthenticated();
-    }
-
-    public function test_user_can_login(): void
-    {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => 'password',
+        $this->assertDatabaseHas('users', [
+            'email' => 'demo@formet.io',
         ]);
-
-        $this->post('/login', [
-            'email' => 'test@example.com',
-            'password' => 'password',
-        ])->assertRedirect('/dashboard');
-
-        $this->assertAuthenticatedAs($user);
-    }
-
-    public function test_user_cannot_login_with_wrong_password(): void
-    {
-        User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => 'password',
-        ]);
-
-        $this->post('/login', [
-            'email' => 'test@example.com',
-            'password' => 'wrong-password',
-        ])->assertSessionHasErrors('email');
-
-        $this->assertGuest();
     }
 
     public function test_user_can_logout(): void
@@ -81,6 +48,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create();
 
+        // Guest middleware redirects authenticated users to dashboard
         $this->actingAs($user)
             ->get('/login')
             ->assertRedirect('/dashboard');
@@ -90,6 +58,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create();
 
+        // Guest middleware redirects authenticated users to dashboard
         $this->actingAs($user)
             ->get('/register')
             ->assertRedirect('/dashboard');

@@ -1,190 +1,267 @@
 <x-app-layout>
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-slate-900">Dashboard</h1>
-            <p class="text-slate-500 mt-1">Welcome back, <span class="font-medium text-slate-700">{{ auth()->user()->name }}</span>!</p>
+            <h1 class="text-2xl font-bold text-slate-900">Dashboard</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ $forms->count() }} {{ Str::plural('endpoint', $forms->count()) }} &middot; {{ number_format($totalSubmissions) }} {{ Str::plural('submission', $totalSubmissions) }}</p>
         </div>
-        <div class="flex items-center gap-3">
-            <a href="{{ route('forms.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                <span>All Forms</span>
-            </a>
-            <a href="{{ route('forms.create') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:from-brand-600 hover:to-brand-700 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                </svg>
-                New Form
-            </a>
-        </div>
-    </div>
-
-    <!-- Getting Started Checklist (for new users) -->
-    @if($forms->count() === 1 && $totalSubmissions < 5)
-    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100"
-         x-data="{ dismissed: localStorage.getItem('getting-started') === 'true' }"
-         x-show="!dismissed"
-         x-transition>
-        <div class="flex items-start justify-between gap-4">
-            <div class="flex-1">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-semibold text-slate-900">Getting Started</h3>
-                </div>
-                <div class="space-y-2">
-                    <label class="flex items-center gap-3 text-sm">
-                        <input type="checkbox" checked disabled class="w-4 h-4 text-brand-600 rounded">
-                        <span class="text-slate-600 line-through">Create your first form</span>
-                    </label>
-                    <label class="flex items-center gap-3 text-sm">
-                        <input type="checkbox" {{ $totalSubmissions > 0 ? 'checked disabled' : '' }} class="w-4 h-4 text-brand-600 rounded">
-                        <span class="text-slate-600 {{ $totalSubmissions > 0 ? 'line-through' : '' }}">Send a test submission</span>
-                    </label>
-                    <label class="flex items-center gap-3 text-sm">
-                        <input type="checkbox" {{ $forms->first()?->email_notifications ? 'checked disabled' : '' }} class="w-4 h-4 text-brand-600 rounded">
-                        <span class="text-slate-600 {{ $forms->first()?->email_notifications ? 'line-through' : '' }}">Configure email notifications</span>
-                    </label>
-                    <label class="flex items-center gap-3 text-sm">
-                        <input type="checkbox" class="w-4 h-4 text-brand-600 rounded">
-                        <span class="text-slate-600">Integrate with your website</span>
-                    </label>
-                </div>
-            </div>
-            <button @click="dismissed = true; localStorage.setItem('getting-started', 'true')"
-                    class="text-slate-400 hover:text-slate-600">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-    </div>
-    @endif
-
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <!-- Total Submissions -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/50">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-                    </svg>
-                </div>
-            </div>
-            <p class="text-2xl font-bold text-slate-900">{{ number_format($totalSubmissions) }}</p>
-            <p class="text-xs text-slate-500 mt-1">Total submissions</p>
-        </div>
-
-        <!-- Unread -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/50">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-            </div>
-            <p class="text-2xl font-bold {{ $unreadCount > 0 ? 'text-amber-600' : 'text-slate-900' }}">{{ number_format($unreadCount) }}</p>
-            <p class="text-xs text-slate-500 mt-1">Unread</p>
-        </div>
-
-        <!-- Today -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/50">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-            </div>
-            <p class="text-2xl font-bold text-slate-900">{{ number_format($todayCount) }}</p>
-            <p class="text-xs text-slate-500 mt-1">Today</p>
-        </div>
-
-        <!-- This Week -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/50">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-            </div>
-            <p class="text-2xl font-bold text-slate-900">{{ number_format($weekCount) }}</p>
-            <p class="text-xs text-slate-500 mt-1">This week</p>
-        </div>
-
-        <!-- Forms -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/50">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                </div>
-            </div>
-            <p class="text-2xl font-bold text-slate-900">{{ $forms->count() }}</p>
-            <p class="text-xs text-slate-500 mt-1">Active forms</p>
-        </div>
+        <a href="{{ route('forms.create') }}" class="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            New Endpoint
+        </a>
     </div>
 
     @if($forms->isEmpty())
-        <!-- Empty State with Quick Start -->
-        <div class="grid lg:grid-cols-3 gap-6">
-            <!-- Main Empty State -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-12 text-center">
-                    <div class="w-20 h-20 bg-gradient-to-br from-brand-100 to-accent-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-10 h-10 text-brand-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+        <!-- Empty State: Quick Start for Developers -->
+        <div class="grid lg:grid-cols-2 gap-6">
+            <!-- Email Endpoint (Zero Config) -->
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 text-white">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold text-slate-900 mb-3">Let's create your first form</h3>
-                    <p class="text-slate-500 mb-8 max-w-md mx-auto">Get a unique endpoint URL in seconds. No server setup, no configuration files needed.</p>
-                    <a href="{{ route('forms.create') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-brand-600 hover:to-brand-700 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Create Your First Form
-                    </a>
+                    <h2 class="text-lg font-bold">Zero Config Mode</h2>
                 </div>
+                <p class="text-emerald-100 text-sm mb-4">Use your email as the endpoint. No signup needed.</p>
+                <div class="bg-black/30 rounded-lg p-4 font-mono text-sm">
+                    <span class="text-emerald-300">&lt;form</span> <span class="text-yellow-300">action</span>=<span class="text-orange-300">"{{ url('/f/') }}<span class="text-white font-bold">you@email.com</span>"</span><span class="text-emerald-300">&gt;</span>
+                </div>
+                <p class="text-emerald-200 text-xs mt-3">Submissions are emailed directly to you</p>
             </div>
 
-            <!-- How It Works -->
-            <div class="space-y-6">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-6">
-                    <h3 class="font-semibold text-slate-900 mb-4">How it works</h3>
-                    <ol class="space-y-4">
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 bg-brand-500 text-white rounded-full text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">1</div>
-                            <div>
-                                <p class="text-sm font-medium text-slate-900">Create endpoint</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Get a unique URL instantly</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 bg-brand-500 text-white rounded-full text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">2</div>
-                            <div>
-                                <p class="text-sm font-medium text-slate-900">Add to your form</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Point your HTML form action</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 bg-brand-500 text-white rounded-full text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">3</div>
-                            <div>
-                                <p class="text-sm font-medium text-slate-900">Collect submissions</p>
-                                <p class="text-xs text-slate-500 mt-0.5">View & manage in dashboard</p>
-                            </div>
-                        </li>
-                    </ol>
+            <!-- Create Endpoint -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg font-bold text-slate-900">Or Create an Endpoint</h2>
+                </div>
+                <p class="text-slate-500 text-sm mb-4">Get a unique URL with webhooks, Slack/Discord, file uploads, and more.</p>
+                <a href="{{ route('forms.create') }}" class="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-all">
+                    Create Endpoint
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Code Examples -->
+            <div class="lg:col-span-2 bg-slate-900 rounded-2xl overflow-hidden" x-data="{ tab: 'html' }">
+                <div class="flex border-b border-slate-700">
+                    <button @click="tab = 'html'" :class="tab === 'html' ? 'text-white border-b-2 border-brand-500' : 'text-slate-400 hover:text-white'" class="px-4 py-3 text-sm font-medium transition-colors">HTML</button>
+                    <button @click="tab = 'fetch'" :class="tab === 'fetch' ? 'text-white border-b-2 border-brand-500' : 'text-slate-400 hover:text-white'" class="px-4 py-3 text-sm font-medium transition-colors">JavaScript</button>
+                    <button @click="tab = 'curl'" :class="tab === 'curl' ? 'text-white border-b-2 border-brand-500' : 'text-slate-400 hover:text-white'" class="px-4 py-3 text-sm font-medium transition-colors">cURL</button>
+                </div>
+                <div class="p-4">
+                    <pre x-show="tab === 'html'" class="text-sm text-slate-300 overflow-x-auto"><code>&lt;<span class="text-pink-400">form</span> <span class="text-yellow-300">action</span>=<span class="text-emerald-400">"{{ url('/f/you@email.com') }}"</span> <span class="text-yellow-300">method</span>=<span class="text-emerald-400">"POST"</span>&gt;
+  &lt;<span class="text-pink-400">input</span> <span class="text-yellow-300">type</span>=<span class="text-emerald-400">"text"</span> <span class="text-yellow-300">name</span>=<span class="text-emerald-400">"name"</span> <span class="text-yellow-300">required</span>&gt;
+  &lt;<span class="text-pink-400">input</span> <span class="text-yellow-300">type</span>=<span class="text-emerald-400">"email"</span> <span class="text-yellow-300">name</span>=<span class="text-emerald-400">"email"</span> <span class="text-yellow-300">required</span>&gt;
+  &lt;<span class="text-pink-400">textarea</span> <span class="text-yellow-300">name</span>=<span class="text-emerald-400">"message"</span>&gt;&lt;/<span class="text-pink-400">textarea</span>&gt;
+  &lt;<span class="text-pink-400">button</span> <span class="text-yellow-300">type</span>=<span class="text-emerald-400">"submit"</span>&gt;Send&lt;/<span class="text-pink-400">button</span>&gt;
+&lt;/<span class="text-pink-400">form</span>&gt;</code></pre>
+                    <pre x-show="tab === 'fetch'" class="text-sm text-slate-300 overflow-x-auto"><code><span class="text-violet-400">fetch</span>(<span class="text-emerald-400">'{{ url('/f/you@email.com') }}'</span>, {
+  <span class="text-yellow-300">method</span>: <span class="text-emerald-400">'POST'</span>,
+  <span class="text-yellow-300">headers</span>: { <span class="text-emerald-400">'Content-Type'</span>: <span class="text-emerald-400">'application/json'</span> },
+  <span class="text-yellow-300">body</span>: <span class="text-violet-400">JSON</span>.<span class="text-violet-400">stringify</span>({ <span class="text-yellow-300">name</span>: <span class="text-emerald-400">'John'</span>, <span class="text-yellow-300">email</span>: <span class="text-emerald-400">'john@example.com'</span> })
+})
+.<span class="text-violet-400">then</span>(<span class="text-orange-400">r</span> => <span class="text-orange-400">r</span>.<span class="text-violet-400">json</span>())
+.<span class="text-violet-400">then</span>(<span class="text-orange-400">data</span> => <span class="text-violet-400">console</span>.<span class="text-violet-400">log</span>(<span class="text-orange-400">data</span>));</code></pre>
+                    <pre x-show="tab === 'curl'" class="text-sm text-slate-300 overflow-x-auto"><code><span class="text-emerald-400">curl</span> -X POST {{ url('/f/you@email.com') }} \
+  -H <span class="text-yellow-300">"Content-Type: application/x-www-form-urlencoded"</span> \
+  -d <span class="text-yellow-300">"name=John&email=john@example.com&message=Hello"</span></code></pre>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Quick Endpoint Copier -->
+                @if($forms->first())
+                <div class="bg-slate-900 rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-slate-400 text-sm">Your endpoint</span>
+                        <span class="text-emerald-400 text-xs font-medium flex items-center gap-1">
+                            <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                            Live
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-3" x-data="{ copied: false }">
+                        <code class="flex-1 bg-slate-800 text-emerald-400 px-4 py-3 rounded-lg font-mono text-sm overflow-x-auto">{{ $forms->first()->endpoint_url }}</code>
+                        <button @click="navigator.clipboard.writeText('{{ $forms->first()->endpoint_url }}'); copied = true; setTimeout(() => copied = false, 2000)"
+                                class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-3 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium">
+                            <svg x-show="!copied" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            <svg x-show="copied" class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+                        </button>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-4 gap-3">
+                    <div class="bg-white rounded-xl p-4 border border-slate-200/50">
+                        <p class="text-2xl font-bold text-slate-900">{{ number_format($totalSubmissions) }}</p>
+                        <p class="text-xs text-slate-500">Total</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 border border-slate-200/50">
+                        <p class="text-2xl font-bold {{ $unreadCount > 0 ? 'text-amber-600' : 'text-slate-900' }}">{{ $unreadCount }}</p>
+                        <p class="text-xs text-slate-500">Unread</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 border border-slate-200/50">
+                        <p class="text-2xl font-bold text-slate-900">{{ $todayCount }}</p>
+                        <p class="text-xs text-slate-500">Today</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 border border-slate-200/50">
+                        <p class="text-2xl font-bold text-slate-900">{{ $weekCount }}</p>
+                        <p class="text-xs text-slate-500">This week</p>
+                    </div>
                 </div>
 
+                <!-- All Endpoints -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <h2 class="font-semibold text-slate-900">Endpoints</h2>
+                        <a href="{{ route('forms.create') }}" class="text-sm text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Add
+                        </a>
+                    </div>
+                    <div class="divide-y divide-slate-100">
+                        @foreach($forms as $form)
+                            <div class="px-5 py-4 hover:bg-slate-50 transition-colors group" x-data="{ copied: false }">
+                                <div class="flex items-center justify-between mb-2">
+                                    <a href="{{ route('forms.show', $form) }}" class="font-medium text-slate-900 group-hover:text-brand-600 transition-colors">{{ $form->name }}</a>
+                                    <div class="flex items-center gap-2">
+                                        @if(!$form->is_active)
+                                            <span class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">paused</span>
+                                        @endif
+                                        <span class="text-sm text-slate-500">{{ $form->submissions_count }} {{ Str::plural('sub', $form->submissions_count) }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <code class="flex-1 text-xs text-slate-500 font-mono bg-slate-100 px-3 py-1.5 rounded truncate">{{ $form->endpoint_url }}</code>
+                                    <button @click="navigator.clipboard.writeText('{{ $form->endpoint_url }}'); copied = true; setTimeout(() => copied = false, 2000)"
+                                            class="text-slate-400 hover:text-slate-600 p-1.5 rounded hover:bg-slate-100 transition-colors">
+                                        <svg x-show="!copied" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                        </svg>
+                                        <svg x-show="copied" class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </button>
+                                    <a href="{{ route('forms.show', $form) }}" class="text-slate-400 hover:text-slate-600 p-1.5 rounded hover:bg-slate-100 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Activity Chart -->
+                @if($totalSubmissions > 5)
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100">
+                        <h2 class="font-semibold text-slate-900">Last 14 Days</h2>
+                    </div>
+                    <div class="p-5">
+                        <div class="h-32" x-data="{
+                            labels: {{ Js::from($chartLabels) }},
+                            values: {{ Js::from($chartValues) }},
+                            max: Math.max(...{{ Js::from($chartValues) }}, 1)
+                        }">
+                            <div class="flex items-end justify-between h-full gap-1">
+                                <template x-for="(value, index) in values" :key="index">
+                                    <div class="flex-1 flex flex-col items-center gap-1">
+                                        <div class="w-full bg-brand-500 rounded-t relative group cursor-pointer hover:bg-brand-600 transition-colors"
+                                             :style="'height: ' + Math.max(value / max * 100, 3) + '%'">
+                                            <div class="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10" x-text="value"></div>
+                                        </div>
+                                        <span class="text-[9px] text-slate-400" x-text="labels[index].split('/')[1]"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Recent Submissions -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100">
+                        <h2 class="font-semibold text-slate-900">Recent</h2>
+                    </div>
+                    @if($recentSubmissions->isNotEmpty())
+                        <div class="divide-y divide-slate-100 max-h-80 overflow-y-auto">
+                            @foreach($recentSubmissions as $submission)
+                                <a href="{{ route('submissions.show', [$submission->form, $submission]) }}" class="flex items-start gap-3 px-5 py-3 hover:bg-slate-50 transition-colors group">
+                                    <div class="mt-1.5">
+                                        @if(!$submission->is_read)
+                                            <div class="w-2 h-2 bg-brand-500 rounded-full"></div>
+                                        @else
+                                            <div class="w-2 h-2 bg-slate-300 rounded-full"></div>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-slate-900 truncate">
+                                            @php
+                                                $preview = $submission->getNameField() ?? $submission->getEmailField() ?? collect($submission->data)->first();
+                                            @endphp
+                                            {{ is_string($preview) ? Str::limit($preview, 25) : 'New submission' }}
+                                        </p>
+                                        <p class="text-xs text-slate-400">{{ $submission->created_at->diffForHumans() }}</p>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="p-6 text-center">
+                            <p class="text-sm text-slate-500">No submissions yet</p>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Quick Test -->
+                <div class="bg-slate-900 rounded-2xl p-5" x-data="{ show: false }">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-white font-semibold text-sm">Quick Test</h3>
+                        <button @click="show = !show" class="text-slate-400 hover:text-white text-xs">
+                            <span x-text="show ? 'Hide' : 'Show'"></span>
+                        </button>
+                    </div>
+                    <div x-show="show" x-collapse>
+                        @if($forms->first())
+                        <pre class="text-xs text-slate-400 overflow-x-auto mb-3"><code class="text-emerald-400">curl</code> -X POST {{ $forms->first()->endpoint_url }} \
+  -d <span class="text-yellow-300">"name=Test&email=test@example.com"</span></pre>
+                        <button onclick="fetch('{{ $forms->first()->endpoint_url }}', {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify({name:'Dashboard Test',email:'test@example.com',message:'Sent from dashboard'})}).then(r=>r.json()).then(d=>alert('Success! ID: '+d.submission_id)).catch(e=>alert('Error: '+e))"
+                                class="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors">
+                            Send Test Submission
+                        </button>
+                        @endif
+                    </div>
+                    <p x-show="!show" class="text-slate-500 text-xs">Test your endpoint with one click</p>
+                </div>
+
+                <!-- Email Endpoint Tip -->
                 <div class="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-5 text-white">
                     <div class="flex items-start gap-3">
                         <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -193,193 +270,9 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-sm">Free Features</h3>
-                            <ul class="text-xs text-white/80 mt-2 space-y-1">
-                                <li>• Email notifications</li>
-                                <li>• Webhooks & integrations</li>
-                                <li>• Spam protection</li>
-                                <li>• CSV/JSON export</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @else
-        <div class="grid lg:grid-cols-3 gap-6">
-            <!-- Activity Chart + Forms List -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Activity Chart -->
-                @if($totalSubmissions > 0)
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-200/50">
-                        <h2 class="font-semibold text-slate-900">Submissions (Last 14 Days)</h2>
-                    </div>
-                    <div class="p-6">
-                        <div class="h-48" x-data="{
-                            labels: {{ Js::from($chartLabels) }},
-                            values: {{ Js::from($chartValues) }},
-                            max: Math.max(...{{ Js::from($chartValues) }}, 1)
-                        }">
-                            <div class="flex items-end justify-between h-full gap-1">
-                                <template x-for="(value, index) in values" :key="index">
-                                    <div class="flex-1 flex flex-col items-center gap-2">
-                                        <div class="w-full bg-brand-100 rounded-t-md relative group cursor-pointer transition-all hover:bg-brand-200"
-                                             :style="'height: ' + (value / max * 100) + '%'"
-                                             :class="value === 0 ? 'min-h-[4px]' : 'min-h-[8px]'">
-                                            <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10" x-text="value + ' submissions'"></div>
-                                        </div>
-                                        <span class="text-[10px] text-slate-400 -rotate-45 origin-top-left translate-y-2" x-text="labels[index]"></span>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endif
-
-                <!-- Forms List -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-200/50 flex items-center justify-between">
-                        <h2 class="font-semibold text-slate-900">Your Forms</h2>
-                        <a href="{{ route('forms.index') }}" class="text-sm text-brand-600 hover:text-brand-700 font-medium">View all</a>
-                    </div>
-                    <div class="divide-y divide-slate-100">
-                        @foreach($forms->take(5) as $form)
-                            <a href="{{ route('forms.show', $form) }}" class="flex items-center px-6 py-4 hover:bg-slate-50 transition-colors group">
-                                <div class="w-10 h-10 bg-gradient-to-br {{ $form->is_active ? 'from-emerald-400 to-emerald-500' : 'from-slate-300 to-slate-400' }} rounded-xl flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                </div>
-                                <div class="ml-4 flex-1 min-w-0">
-                                    <h3 class="font-medium text-slate-900 group-hover:text-brand-600 transition-colors truncate">{{ $form->name }}</h3>
-                                    <p class="text-sm text-slate-500">{{ $form->submissions_count }} {{ Str::plural('submission', $form->submissions_count) }}</p>
-                                </div>
-                                <div class="ml-4 flex items-center gap-3">
-                                    @if(!$form->is_active)
-                                        <span class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-full">Paused</span>
-                                    @endif
-                                    <svg class="w-5 h-5 text-slate-300 group-hover:text-slate-400 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar: Recent Activity -->
-            <div class="space-y-6">
-                <!-- Recent Submissions -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden">
-                    <div class="px-5 py-4 border-b border-slate-200/50">
-                        <h2 class="font-semibold text-slate-900">Recent Activity</h2>
-                    </div>
-                    @if($recentSubmissions->isNotEmpty())
-                        <div class="divide-y divide-slate-100 max-h-96 overflow-y-auto">
-                            @foreach($recentSubmissions as $submission)
-                                <a href="{{ route('submissions.show', [$submission->form, $submission]) }}" class="flex items-start gap-3 px-5 py-3 hover:bg-slate-50 transition-colors group">
-                                    <div class="relative mt-1">
-                                        @if(!$submission->is_read)
-                                            <div class="w-2 h-2 bg-brand-500 rounded-full"></div>
-                                        @else
-                                            <div class="w-2 h-2 bg-slate-300 rounded-full"></div>
-                                        @endif
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-slate-900 truncate group-hover:text-brand-600">{{ $submission->form->name }}</p>
-                                        <p class="text-xs text-slate-500 truncate">
-                                            @php
-                                                $preview = collect($submission->data)->take(2)->map(fn($v, $k) => is_string($v) ? Str::limit($v, 15) : '...')->implode(' · ');
-                                            @endphp
-                                            {{ $preview ?: 'New submission' }}
-                                        </p>
-                                        <p class="text-xs text-slate-400 mt-0.5">{{ $submission->created_at->diffForHumans() }}</p>
-                                    </div>
-                                </a>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="p-8 text-center">
-                            <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-                                </svg>
-                            </div>
-                            <p class="text-sm text-slate-500">No submissions yet</p>
-                        </div>
-                    @endif
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden">
-                    <div class="px-5 py-4 border-b border-slate-200/50">
-                        <h2 class="font-semibold text-slate-900">Quick Actions</h2>
-                    </div>
-                    <div class="p-4 space-y-2">
-                        <a href="{{ route('forms.create') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors group">
-                            <div class="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-slate-900 group-hover:text-brand-600">New Form</p>
-                                <p class="text-xs text-slate-500">Create endpoint</p>
-                            </div>
-                            <svg class="w-4 h-4 text-slate-300 group-hover:text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </a>
-                        <a href="{{ route('forms.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors group">
-                            <div class="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-slate-900 group-hover:text-violet-600">View All Forms</p>
-                                <p class="text-xs text-slate-500">Manage endpoints</p>
-                            </div>
-                            <svg class="w-4 h-4 text-slate-300 group-hover:text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Pro Tips -->
-                <div class="bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl p-5 text-white" x-data="{
-                    tips: [
-                        'Add <code class=&quot;bg-white/20 px-1 rounded&quot;>_honeypot</code> field to catch spam bots automatically.',
-                        'Use webhooks to send form data to your own servers in real-time.',
-                        'Enable CAPTCHA in form settings to block automated submissions.',
-                        'Export submissions as CSV or JSON for easy data analysis.',
-                        'Set up autoresponders to thank users instantly after submission.'
-                    ],
-                    currentTip: 0
-                }" x-init="setInterval(() => currentTip = (currentTip + 1) % tips.length, 5000)">
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-sm mb-2">Pro Tip</h3>
-                            <template x-for="(tip, index) in tips" :key="index">
-                                <p x-show="currentTip === index"
-                                   x-transition:enter="transition ease-out duration-300"
-                                   x-transition:enter-start="opacity-0 transform translate-y-2"
-                                   x-transition:enter-end="opacity-100 transform translate-y-0"
-                                   x-transition:leave="transition ease-in duration-300"
-                                   x-transition:leave-start="opacity-100"
-                                   x-transition:leave-end="opacity-0"
-                                   class="text-xs text-white/90"
-                                   x-html="tip"></p>
-                            </template>
+                            <h3 class="font-semibold text-sm">Pro tip</h3>
+                            <p class="text-xs text-white/80 mt-1">Use your email as an endpoint:</p>
+                            <code class="text-xs bg-black/20 px-2 py-1 rounded mt-2 block truncate">/f/you@email.com</code>
                         </div>
                     </div>
                 </div>
